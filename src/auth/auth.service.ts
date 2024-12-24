@@ -5,6 +5,7 @@ import * as bcrypt from 'bcrypt';
 import { ConfigService } from '@nestjs/config';
 import { Role, User } from 'src/user/entities/user.entity';
 import { JwtService } from '@nestjs/jwt';
+import { envVariableKeys } from 'src/common/const/env.const';
 
 @Injectable()
 export class AuthService {
@@ -23,7 +24,7 @@ export class AuthService {
 
     const hash = await bcrypt.hash(
       password,
-      parseInt(this.configService.get('HASH_ROUNDS')),
+      parseInt(this.configService.get(envVariableKeys.hashRounds)),
     );
 
     await this.userRepository.save({
@@ -49,10 +50,10 @@ export class AuthService {
 
   async issueToken(user: { id: number; role: Role }, isRefreshToken: boolean) {
     const refreshTokenSecret = this.configService.get<string>(
-      'REFRESH_TOKEN_SECRET',
+      envVariableKeys.refreshTokenSecret,
     );
     const accessTokenSecret = this.configService.get<string>(
-      'ACCESS_TOKEN_SECRET',
+      envVariableKeys.accessTokenSecret,
     );
 
     return this.jwtService.signAsync(
@@ -115,18 +116,25 @@ export class AuthService {
       throw new BadRequestException('토큰 포맷이 잘못되었습니다.');
 
     // const payload = await this.jwtService.decode; // 검증은 안하고 decode만
-    const payload = await this.jwtService.verifyAsync(token, {
-      secret: this.configService.get<string>('REFRESH_TOKEN_SECRET'),
-    });
+    try {
+      const payload = await this.jwtService.verifyAsync(token, {
+        secret: this.configService.get<string>(
+          envVariableKeys.refreshTokenSecret,
+        ),
+      });
 
-    if (isRefreshToken) {
-      if (payload.type !== 'refresh')
-        throw new BadRequestException('Refresh 토큰을 입력해주세요.');
-    } else {
-      if (payload.type !== 'access')
-        throw new BadRequestException('Access 토큰을 입력해주세요.');
+      if (isRefreshToken) {
+        if (payload.type !== 'refresh')
+          throw new BadRequestException('Refresh 토큰을 입력해주세요.');
+      } else {
+        if (payload.type !== 'access')
+          throw new BadRequestException('Access 토큰을 입력해주세요.');
+      }
+
+      return payload;
+    } catch (error) {
+      console.error(error);
+      throw new BadRequestException('토큰이 만료되었습니다.');
     }
-
-    return payload;
   }
 }
