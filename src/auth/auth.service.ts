@@ -39,11 +39,7 @@ export class AuthService {
   async login(rawToken: string) {
     const { email, password } = this.parseBasicToken(rawToken);
 
-    const user = await this.userRepository.findOne({ where: { email } });
-    if (!user) throw new BadRequestException('잘못된 로그인 정보입니다.');
-
-    const passOk = await bcrypt.compare(password, user.password);
-    if (!passOk) throw new BadRequestException('잘못된 로그인 정보입니다.');
+    const user = await this.authenticate(email, password);
 
     const refreshTokenSecret = this.configService.get<string>(
       'REFRESH_TOKEN_SECRET',
@@ -76,6 +72,16 @@ export class AuthService {
         },
       ),
     };
+  }
+
+  async authenticate(email: string, password: string) {
+    const user = await this.userRepository.findOne({ where: { email } });
+    if (!user) throw new BadRequestException('잘못된 로그인 정보입니다.');
+
+    const passOk = await bcrypt.compare(password, user.password);
+    if (!passOk) throw new BadRequestException('잘못된 로그인 정보입니다.');
+
+    return user;
   }
 
   parseBasicToken(rawToken: string) {
