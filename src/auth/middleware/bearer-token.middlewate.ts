@@ -39,7 +39,7 @@ export class BearerTokenMiddleware implements NestMiddleware {
       next();
     } catch (error) {
       console.error(error);
-      throw new BadRequestException('토큰이 만료되었습니다.');
+      next();
     }
   }
 
