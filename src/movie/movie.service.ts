@@ -7,6 +7,8 @@ import { DataSource, In, Repository } from 'typeorm';
 import { MovieDetail } from './entity/movie-detail.entity';
 import { Director } from 'src/director/entity/director.entity';
 import { Genre } from 'src/genre/entities/genre.entity';
+import { GetMoviesDto } from './dto/get-movies.dto';
+import { CommonService } from 'src/common/common.service';
 
 @Injectable()
 export class MovieService {
@@ -19,9 +21,11 @@ export class MovieService {
     @InjectRepository(Genre)
     private genreRepository: Repository<Genre>,
     private readonly dataSource: DataSource,
+    private readonly commonService: CommonService,
   ) {}
 
-  async findAll(title?: string) {
+  async findAll(getMoviesDto: GetMoviesDto) {
+    const { title, page, take } = getMoviesDto;
     const qb = await this.movieRepository
       .createQueryBuilder('movie')
       .leftJoinAndSelect('movie.director', 'director')
@@ -31,15 +35,11 @@ export class MovieService {
       qb.where('movie.title like :title', { title: `%${title}%` });
     }
 
-    return qb.getManyAndCount();
-    // if (!title) {
-    //   return this.movieRepository.find({ relations: ['director', 'genres'] });
-    // }
+    if (take && page) {
+      this.commonService.applyPagePaginationParamsToQb(qb, getMoviesDto);
+    }
 
-    // return this.movieRepository.find({
-    //   where: { title: Like(`%${title}%`) },
-    //   relations: ['director', 'genres'],
-    // });
+    return qb.getManyAndCount();
   }
 
   async findOne(id: number) {
