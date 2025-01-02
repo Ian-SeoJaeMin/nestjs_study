@@ -3,7 +3,7 @@ import { CreateMovieDto } from './dto/create-movie.dto';
 import { UpdateMovieDto } from './dto/update-movie.dto';
 import { Movie } from './entity/movie.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DataSource, In, Repository } from 'typeorm';
+import { DataSource, In, QueryRunner, Repository } from 'typeorm';
 import { MovieDetail } from './entity/movie-detail.entity';
 import { Director } from 'src/director/entity/director.entity';
 import { Genre } from 'src/genre/entities/genre.entity';
@@ -67,77 +67,57 @@ export class MovieService {
     // return movie;
   }
 
-  async create(movieData: CreateMovieDto) {
-    const qr = this.dataSource.createQueryRunner();
-    await qr.connect();
-    await qr.startTransaction();
+  async create(movieData: CreateMovieDto, qr: QueryRunner) {
+    const { detail, directorId, genreIds, ...movieRest } = movieData;
+    const director = await qr.manager.findOne(Director, {
+      where: { id: directorId },
+    });
+    if (!director) throw new NotFoundException('Director not found');
 
-    try {
-      const { detail, directorId, genreIds, ...movieRest } = movieData;
-      const director = await qr.manager.findOne(Director, {
-        where: { id: directorId },
-      });
-      if (!director) throw new NotFoundException('Director not found');
+    const genres = await qr.manager.find(Genre, {
+      where: { id: In(genreIds) },
+    });
 
-      const genres = await qr.manager.find(Genre, {
-        where: { id: In(genreIds) },
-      });
+    if (genres.length !== genreIds.length)
+      throw new NotFoundException(
+        `Genres not found (exist ids => ${genres.map((genre) => genre.id).join(', ')})`,
+      );
 
-      if (genres.length !== genreIds.length)
-        throw new NotFoundException(
-          `Genres not found (exist ids => ${genres.map((genre) => genre.id).join(', ')})`,
-        );
+    const movieDetail = await qr.manager
+      .createQueryBuilder()
+      .insert()
+      .into(MovieDetail)
+      .values({ detail })
+      .execute();
 
-      const movieDetail = await qr.manager
-        .createQueryBuilder()
-        .insert()
-        .into(MovieDetail)
-        .values({ detail })
-        .execute();
+    const movieDetailId = movieDetail.identifiers[0].id;
 
-      const movieDetailId = movieDetail.identifiers[0].id;
+    const movie = await qr.manager
+      .createQueryBuilder()
+      .insert()
+      .into(Movie)
+      .values({
+        ...movieRest,
+        detail: { id: movieDetailId },
+        director,
+        //genres // many-to-many 관계로 인해 이렇게 넣을 수 없음
+      })
+      .execute();
 
-      const movie = await qr.manager
-        .createQueryBuilder()
-        .insert()
-        .into(Movie)
-        .values({
-          ...movieRest,
-          detail: { id: movieDetailId },
-          director,
-          //genres // many-to-many 관계로 인해 이렇게 넣을 수 없음
-        })
-        .execute();
+    const movieId = movie.identifiers[0].id;
 
-      const movieId = movie.identifiers[0].id;
+    await qr.manager
+      .createQueryBuilder()
+      .relation(Movie, 'genres')
+      .of(movieId)
+      .add(genres.map((genre) => genre.id));
 
-      await qr.manager
-        .createQueryBuilder()
-        .relation(Movie, 'genres')
-        .of(movieId)
-        .add(genres.map((genre) => genre.id));
+    // await qr.commitTransaction();
 
-      await qr.commitTransaction();
-
-      return this.movieRepository.findOne({
-        where: { id: movieId },
-        relations: ['detail', 'director', 'genres'],
-      });
-
-      // Create 할때는 movieRepository 를 이용하는게 queryBuilder 보다 편리함
-
-      // return await this.movieRepository.save({
-      //   ...movieRest,
-      //   detail: { detail },
-      //   director,
-      //   genres,
-      // });
-    } catch (error) {
-      await qr.rollbackTransaction();
-      throw error;
-    } finally {
-      await qr.release(); // 트랜젝션 돌려주기
-    }
+    return qr.manager.findOne(Movie, {
+      where: { id: movieId },
+      relations: ['detail', 'director', 'genres'],
+    });
   }
 
   async update(id: number, movieData: UpdateMovieDto) {
