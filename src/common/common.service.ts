@@ -21,9 +21,30 @@ export class CommonService {
     qb: SelectQueryBuilder<T>,
     dto: CursorPaginationDto,
   ) {
-    const { orders, cursor, take } = dto;
+    const { cursor, take } = dto;
+    let { orders } = dto;
 
     if (cursor) {
+      const decodeCursor = Buffer.from(cursor, 'base64').toString('utf-8');
+      const cursorObj = JSON.parse(decodeCursor);
+
+      orders = cursorObj.orders;
+
+      const { values } = cursorObj;
+
+      /// (col1, col2, col3) > (:value1, :value2, :value3)
+      const columns = Object.keys(values);
+      const comparisonOperator = orders.some((o) => o.endsWith('DESC'))
+        ? '<'
+        : '>';
+
+      const whereConditions = columns.map((c) => `${qb.alias}.${c}`).join(',');
+      const whereParams = columns.map((c) => `:${c}`).join(',');
+
+      qb.where(
+        `(${whereConditions}) ${comparisonOperator} (${whereParams})`,
+        values,
+      );
     }
 
     for (let i = 0; i < orders.length; i++) {
@@ -61,7 +82,7 @@ export class CommonService {
 
     const lastResult = results[results.length - 1];
 
-    const values = [];
+    const values = {};
     orders.forEach((columnOrder) => {
       const [column] = columnOrder.split('_');
       values[column] = lastResult[column];
