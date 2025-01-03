@@ -11,7 +11,8 @@ import {
     Query,
     ParseIntPipe,
     Request,
-    UploadedFile
+    UploadedFile,
+    UploadedFiles
 } from '@nestjs/common';
 import { MovieService } from './movie.service';
 import { CreateMovieDto } from './dto/create-movie.dto';
@@ -21,7 +22,7 @@ import { RBAC } from 'src/auth/decorator/rbac.decorator';
 import { Role } from 'src/user/entities/user.entity';
 import { GetMoviesDto } from './dto/get-movies.dto';
 import { TransactionInterceptor } from 'src/common/interceptor/transaction.interceptor';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 
 @Controller('movie')
 @UseInterceptors(ClassSerializerInterceptor) // class-transformer 를 moviceController에 적용
@@ -43,9 +44,10 @@ export class MovieController {
     @Post()
     @RBAC(Role.admin)
     @UseInterceptors(TransactionInterceptor)
-    @UseInterceptors(FileInterceptor('movie'))
-    postMovie(@Body() movieData: CreateMovieDto, @Request() req: any, @UploadedFile() file: Express.Multer.File) {
-        console.log(file);
+    @UseInterceptors(FilesInterceptor('movies'))
+    postMovie(@Body() movieData: CreateMovieDto, @Request() req: any, @UploadedFiles() files: Express.Multer.File[]) {
+        console.log('-----------------');
+        console.log(files);
         return this.movieService.create(movieData, req.queryRunner);
     }
 
