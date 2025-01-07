@@ -4,6 +4,7 @@ import { MovieDetail } from './movie-detail.entity';
 import { Director } from 'src/director/entity/director.entity';
 import { Genre } from 'src/genre/entities/genre.entity';
 import { Transform } from 'class-transformer';
+import { User } from 'src/user/entities/user.entity';
 
 /// ManyToOne Director -> Movies
 /// OneToOne MovieDetail -> Movie
@@ -13,6 +14,9 @@ import { Transform } from 'class-transformer';
 export class Movie extends BaseTable {
     @PrimaryGeneratedColumn()
     id: number;
+
+    @ManyToOne(() => User, user => user.createMovies)
+    creator: User;
 
     @Column({
         unique: true

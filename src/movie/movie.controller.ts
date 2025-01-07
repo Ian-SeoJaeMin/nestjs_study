@@ -25,6 +25,7 @@ import { GetMoviesDto } from './dto/get-movies.dto';
 import { TransactionInterceptor } from 'src/common/interceptor/transaction.interceptor';
 import { FileFieldsInterceptor, FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { MovieFilePipe } from './pipe/movie-file.pipe';
+import { UserId } from 'src/user/decorator/user-id.decorator';
 
 @Controller('movie')
 @UseInterceptors(ClassSerializerInterceptor) // class-transformer 를 moviceController에 적용
@@ -46,8 +47,8 @@ export class MovieController {
     @Post()
     @RBAC(Role.admin)
     @UseInterceptors(TransactionInterceptor)
-    postMovie(@Body() movieData: CreateMovieDto, @Request() req: any) {
-        return this.movieService.create(movieData, req.queryRunner);
+    postMovie(@Body() movieData: CreateMovieDto, @Request() req: any, @UserId() userId: number) {
+        return this.movieService.create(movieData, userId, req.queryRunner);
     }
 
     @Patch(':id')

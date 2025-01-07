@@ -55,6 +55,7 @@ export class MovieService {
             .leftJoinAndSelect('movie.director', 'director')
             .leftJoinAndSelect('movie.detail', 'detail')
             .leftJoinAndSelect('movie.genres', 'genres')
+            .leftJoinAndSelect('movie.creator', 'creator')
             .where('movie.id = :id', { id });
         return qb.getOne();
         // const movie = await this.movieRepository.findOne({
@@ -65,7 +66,7 @@ export class MovieService {
         // return movie;
     }
 
-    async create(movieData: CreateMovieDto, qr: QueryRunner) {
+    async create(movieData: CreateMovieDto, userId: number, qr: QueryRunner) {
         const { detail, directorId, genreIds, movieFileName, ...movieRest } = movieData;
         const director = await qr.manager.findOne(Director, {
             where: { id: directorId }
@@ -85,14 +86,15 @@ export class MovieService {
         const movieFolder = join('public', 'movie');
         const tempFolder = join('public', 'temp');
 
-        await rename(join(process.cwd(), tempFolder, movieFileName), join(process.cwd(), movieFolder, movieFileName));
-
         const movie = await qr.manager
             .createQueryBuilder()
             .insert()
             .into(Movie)
             .values({
                 ...movieRest,
+                creator: {
+                    id: userId
+                },
                 detail: { id: movieDetailId },
                 director,
                 movieFilePath: join(movieFolder, movieFileName)
@@ -109,6 +111,8 @@ export class MovieService {
             .add(genres.map(genre => genre.id));
 
         // await qr.commitTransaction();
+
+        await rename(join(process.cwd(), tempFolder, movieFileName), join(process.cwd(), movieFolder, movieFileName));
 
         return qr.manager.findOne(Movie, {
             where: { id: movieId },
