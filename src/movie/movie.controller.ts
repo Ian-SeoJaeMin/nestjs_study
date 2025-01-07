@@ -59,17 +59,7 @@ export class MovieController {
             }
         })
     )
-    postMovie(
-        @Body() movieData: CreateMovieDto,
-        @Request() req: any,
-        @UploadedFile(
-            new MovieFilePipe({
-                maxSize: 20,
-                mimetype: 'video/mp4'
-            })
-        )
-        movie: Express.Multer.File
-    ) {
+    postMovie(@Body() movieData: CreateMovieDto, @Request() req: any, @UploadedFile() movie: Express.Multer.File) {
         console.log('-----------------');
         console.log(movie);
         return this.movieService.create(movieData, req.queryRunner);
