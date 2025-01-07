@@ -3,12 +3,12 @@ import { Movie } from './movie.entity';
 
 @Entity()
 export class MovieDetail {
-  @PrimaryGeneratedColumn()
-  id: number;
+    @PrimaryGeneratedColumn()
+    id: number;
 
-  @Column()
-  detail: string;
+    @Column()
+    detail: string;
 
-  @OneToOne(() => Movie, (movie) => movie.detail)
-  movie: Movie;
+    @OneToOne(() => Movie, movie => movie.detail)
+    movie: Movie;
 }
