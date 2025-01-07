@@ -7,15 +7,15 @@ export class JwtAuthGuard extends AuthGuard('jwt') {}
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
-  constructor(private readonly configService: ConfigService) {
-    super({
-      //Bearer $token
-      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-      ignoreExpiration: false,
-      secretOrKey: configService.get<string>('ACCESS_TOKEN_SECRET'),
-    });
-  }
-  validate(payload: any) {
-    return payload;
-  }
+    constructor(private readonly configService: ConfigService) {
+        super({
+            //Bearer $token
+            jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+            ignoreExpiration: false,
+            secretOrKey: configService.get<string>('ACCESS_TOKEN_SECRET')
+        });
+    }
+    validate(payload: any) {
+        return payload;
+    }
 }

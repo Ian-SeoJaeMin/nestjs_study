@@ -10,14 +10,14 @@ const accessTokenSecret = 'ACCESS_TOKEN_SECRET';
 const refreshTokenSecret = 'REFRESH_TOKEN_SECRET';
 
 export const envVariableKeys = {
-  env,
-  dbType,
-  dbHost,
-  dbPort,
-  dbUsername,
-  dbPassword,
-  dbDatabase,
-  hashRounds,
-  accessTokenSecret,
-  refreshTokenSecret,
+    env,
+    dbType,
+    dbHost,
+    dbPort,
+    dbUsername,
+    dbPassword,
+    dbDatabase,
+    hashRounds,
+    accessTokenSecret,
+    refreshTokenSecret
 };
