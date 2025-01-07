@@ -45,6 +45,8 @@ lerna-debug.log*
 # temp directory
 .temp
 .tmp
+/public/movie/*
+/public/temp/*
 
 # Runtime data
 pids

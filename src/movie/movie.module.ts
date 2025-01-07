@@ -10,6 +10,7 @@ import { CommonModule } from 'src/common/common.module';
 import { MulterModule } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { join } from 'path';
+import { v4 } from 'uuid';
 
 @Module({
     imports: [
@@ -17,7 +18,13 @@ import { join } from 'path';
         CommonModule,
         MulterModule.register({
             storage: diskStorage({
-                destination: join(process.cwd(), 'public', 'movie')
+                destination: join(process.cwd(), 'public', 'movie'),
+                filename: (req, file, cb) => {
+                    const split = file.originalname.split('.');
+                    let extension = 'mp4';
+                    if (split.length > 1) extension = split[split.length - 1];
+                    cb(null, `${v4()}_${Date.now()}.${extension}`);
+                }
             })
         })
     ],
