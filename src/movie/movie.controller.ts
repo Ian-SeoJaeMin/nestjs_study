@@ -24,6 +24,7 @@ import { Role } from 'src/user/entities/user.entity';
 import { GetMoviesDto } from './dto/get-movies.dto';
 import { TransactionInterceptor } from 'src/common/interceptor/transaction.interceptor';
 import { FileFieldsInterceptor, FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
+import { MovieFilePipe } from './pipe/movie-file.pipe';
 
 @Controller('movie')
 @UseInterceptors(ClassSerializerInterceptor) // class-transformer 를 moviceController에 적용
@@ -46,41 +47,31 @@ export class MovieController {
     @RBAC(Role.admin)
     @UseInterceptors(TransactionInterceptor)
     @UseInterceptors(
-        FileFieldsInterceptor(
-            [
-                {
-                    name: 'movie',
-                    maxCount: 1
-                },
-                {
-                    name: 'poster',
-                    maxCount: 2
+        FileInterceptor('movie', {
+            limits: {
+                fileSize: 20000000
+            },
+            fileFilter(req, file, callback) {
+                if (file.mimetype !== 'video/mp4') {
+                    return callback(new BadRequestException('MP4 타입의 영상만 업로드 가능합니다.'), false);
                 }
-            ],
-            {
-                limits: {
-                    fileSize: 20000000
-                },
-                fileFilter(req, file, callback) {
-                    if (file.mimetype !== 'video/mp4') {
-                        return callback(new BadRequestException('MP4 타입의 영상만 업로드 가능합니다.'), false);
-                    }
-                    return callback(null, true);
-                }
+                return callback(null, true);
             }
-        )
+        })
     )
     postMovie(
         @Body() movieData: CreateMovieDto,
         @Request() req: any,
-        @UploadedFiles()
-        files: {
-            movie?: Express.Multer.File[];
-            poster?: Express.Multer.File[];
-        }
+        @UploadedFile(
+            new MovieFilePipe({
+                maxSize: 20,
+                mimetype: 'video/mp4'
+            })
+        )
+        movie: Express.Multer.File
     ) {
         console.log('-----------------');
-        console.log(files);
+        console.log(movie);
         return this.movieService.create(movieData, req.queryRunner);
     }
 
