@@ -39,4 +39,7 @@ export class Movie extends BaseTable {
         default: 0
     })
     likeCount: number;
+
+    @Column()
+    movieFilePath: string;
 }

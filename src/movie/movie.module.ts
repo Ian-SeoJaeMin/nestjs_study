@@ -23,7 +23,8 @@ import { v4 } from 'uuid';
                     const split = file.originalname.split('.');
                     let extension = 'mp4';
                     if (split.length > 1) extension = split[split.length - 1];
-                    cb(null, `${v4()}_${Date.now()}.${extension}`);
+                    const filename = `${v4()}_${Date.now()}.${extension}`;
+                    cb(null, filename);
                 }
             })
         })

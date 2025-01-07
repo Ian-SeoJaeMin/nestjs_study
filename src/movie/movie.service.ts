@@ -9,6 +9,7 @@ import { Director } from 'src/director/entity/director.entity';
 import { Genre } from 'src/genre/entities/genre.entity';
 import { GetMoviesDto } from './dto/get-movies.dto';
 import { CommonService } from 'src/common/common.service';
+import { join } from 'path';
 
 @Injectable()
 export class MovieService {
@@ -63,7 +64,7 @@ export class MovieService {
         // return movie;
     }
 
-    async create(movieData: CreateMovieDto, qr: QueryRunner) {
+    async create(movieData: CreateMovieDto, movieFileName: string, qr: QueryRunner) {
         const { detail, directorId, genreIds, ...movieRest } = movieData;
         const director = await qr.manager.findOne(Director, {
             where: { id: directorId }
@@ -80,6 +81,7 @@ export class MovieService {
         const movieDetail = await qr.manager.createQueryBuilder().insert().into(MovieDetail).values({ detail }).execute();
 
         const movieDetailId = movieDetail.identifiers[0].id;
+        const movieFolder = join('public', 'movie');
 
         const movie = await qr.manager
             .createQueryBuilder()
@@ -88,7 +90,8 @@ export class MovieService {
             .values({
                 ...movieRest,
                 detail: { id: movieDetailId },
-                director
+                director,
+                movieFilePath: join(movieFolder, movieFileName)
                 //genres // many-to-many 관계로 인해 이렇게 넣을 수 없음
             })
             .execute();
