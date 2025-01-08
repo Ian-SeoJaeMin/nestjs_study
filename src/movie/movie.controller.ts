@@ -19,8 +19,6 @@ import { RBAC } from 'src/auth/decorator/rbac.decorator';
 import { Role } from 'src/user/entities/user.entity';
 import { GetMoviesDto } from './dto/get-movies.dto';
 import { TransactionInterceptor } from 'src/common/interceptor/transaction.interceptor';
-import { FileFieldsInterceptor, FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
-import { MovieFilePipe } from './pipe/movie-file.pipe';
 import { UserId } from 'src/user/decorator/user-id.decorator';
 import { QueryRunner } from 'src/common/decorator/query-runner.decorator';
 import { QueryRunner as qr } from 'typeorm';
