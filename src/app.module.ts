@@ -23,6 +23,7 @@ import { QueryFailedErrorFilter } from './common/filter/query-failed.filter';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { MovieUserLike } from './movie/entity/movie-user-like.entity';
+import { CacheModule } from '@nestjs/cache-manager';
 
 @Module({
     imports: [
@@ -63,7 +64,11 @@ import { MovieUserLike } from './movie/entity/movie-user-like.entity';
         DirectorModule,
         GenreModule,
         AuthModule,
-        UserModule
+        UserModule,
+        CacheModule.register({
+            ttl: 3000, // ttl 전역설정,
+            isGlobal: true // 프로젝트 전체에서 사용
+        })
     ],
     providers: [
         {

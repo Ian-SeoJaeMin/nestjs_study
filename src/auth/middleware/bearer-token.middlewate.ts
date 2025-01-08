@@ -1,4 +1,5 @@
-import { BadRequestException, Injectable, NestMiddleware, UnauthorizedException } from '@nestjs/common';
+import { Cache, CACHE_MANAGER } from '@nestjs/cache-manager';
+import { BadRequestException, Inject, Injectable, NestMiddleware, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { Request, Response, NextFunction } from 'express';
@@ -10,7 +11,8 @@ const ALLOWED_TOKEN_TYPES = ['refresh', 'access']; // 허용된 토큰 타입
 export class BearerTokenMiddleware implements NestMiddleware {
     constructor(
         private readonly jwtService: JwtService,
-        private readonly configService: ConfigService
+        private readonly configService: ConfigService,
+        @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
     ) {}
 
     async use(req: Request, res: Response, next: NextFunction) {
@@ -22,6 +24,14 @@ export class BearerTokenMiddleware implements NestMiddleware {
             }
 
             const token = this.validateBearerToken(authHeader);
+            const tokenKey = `TOKEN_${token}`;
+
+            const cachedPayload = await this.cacheManager.get(tokenKey);
+
+            if (cachedPayload) {
+                req.user = cachedPayload;
+                return next();
+            }
             const decodedPayload = await this.jwtService.decode(token);
 
             this.validateTokenType(decodedPayload.type);
@@ -29,6 +39,15 @@ export class BearerTokenMiddleware implements NestMiddleware {
             const tokenSecretKey = this.getTokenSecretKey(decodedPayload.type);
 
             const payload = await this.verifyToken(token, tokenSecretKey);
+
+            /// payload('exp') -> epoch time seconds
+            /// exp : 1970년 1월 1일부터 현재까지의 초 단위로 표현된 시간
+            const expireDate = +new Date(payload['exp'] * 1000); /// 초단위를 밀리세컨즈로 표현하기 위해 * 1000
+            const now = +Date.now(); // 현재시간
+
+            const differenceInSeconds = (expireDate - now) / 1000; // 초단 차이 : 밀리세컨즈니깐 1000 으로 나눠야 초로 계산
+
+            await this.cacheManager.set(tokenKey, payload, Math.max(differenceInSeconds - 30, 1) * 1000); /// 초 차이 동안 ttl 설정, 밀리세컨즈로 변경을 위해 * 1000 ; 안전 마진 30초 ; 음수 대응
             req.user = payload;
 
             next();

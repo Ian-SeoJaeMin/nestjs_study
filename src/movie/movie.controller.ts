@@ -43,7 +43,6 @@ export class MovieController {
     @CacheKey('getMoviesRecent') // 캐시키를 지정할 수 있다.
     @CacheTTL(0) // 캐싱 ttl 을 override 할 수 있다.
     getMoviesRecent() {
-        console.log('getMoviesRecent 실행');
         return this.movieService.findRecent();
     }
 
