@@ -24,6 +24,7 @@ module.exports = {
     'no-return-await': 'error',
     'no-unused-vars': 'off',
     "@typescript-eslint/no-unused-vars": "off",
-    "@typescript-eslint/no-explicit-any": "warn"
+    "@typescript-eslint/no-explicit-any": "warn",
+    "prefer-const": "warn"
   },
 };
