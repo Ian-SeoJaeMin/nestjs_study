@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '@nestjs/cache-manager':
+        specifier: ^2.3.0
+        version: 2.3.0(@nestjs/common@10.4.8(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)(rxjs@7.8.1))(@nestjs/core@10.4.8)(cache-manager@6.3.2)(rxjs@7.8.1)
       '@nestjs/common':
         specifier: ^10.0.0
         version: 10.4.8(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)(rxjs@7.8.1)
@@ -44,6 +47,9 @@ importers:
       bcrypt:
         specifier: ^5.1.1
         version: 5.1.1
+      cache-manager:
+        specifier: ^6.3.2
+        version: 6.3.2
       class-transformer:
         specifier: ^0.5.1
         version: 0.5.1
@@ -480,6 +486,9 @@ packages:
   '@jridgewell/trace-mapping@0.3.9':
     resolution: {integrity: sha512-3Belt6tdc8bPgAtbcmdtNJlirVoTmEb5e2gC94PnkwEW9jI6CAHUeoG85tjWP5WquqfavoMtMwiG4P926ZKKuQ==}
 
+  '@keyv/serialize@1.0.2':
+    resolution: {integrity: sha512-+E/LyaAeuABniD/RvUezWVXKpeuvwLEA9//nE9952zBaOdBd2mQ3pPoM8cUe2X6IcMByfuSLzmYqnYshG60+HQ==}
+
   '@ljharb/through@2.3.13':
     resolution: {integrity: sha512-/gKJun8NNiWGZJkGzI/Ragc53cOdcLNdzjLaIa+GEjguQs0ulsurx8WN0jijdK9yPqDvziX995sMRLyLt1uZMQ==}
     engines: {node: '>= 0.4'}
@@ -491,6 +500,14 @@ packages:
   '@mapbox/node-pre-gyp@1.0.11':
     resolution: {integrity: sha512-Yhlar6v9WQgUp/He7BdgzOz8lqMQ8sU+jkCq7Wx8Myc5YFJLbEe7lgui/V7G1qB1DJykHSGwreceSaD60Y0PUQ==}
     hasBin: true
+
+  '@nestjs/cache-manager@2.3.0':
+    resolution: {integrity: sha512-pxeBp9w/s99HaW2+pezM1P3fLiWmUEnTUoUMLa9UYViCtjj0E0A19W/vaT5JFACCzFIeNrwH4/16jkpAhQ25Vw==}
+    peerDependencies:
+      '@nestjs/common': ^9.0.0 || ^10.0.0
+      '@nestjs/core': ^9.0.0 || ^10.0.0
+      cache-manager: <=5
+      rxjs: ^7.0.0
 
   '@nestjs/cli@10.4.7':
     resolution: {integrity: sha512-4wJTtBJsbvjLIzXl+Qj6DYHv4J7abotuXyk7bes5erL79y+KBT61LulL56SqilzmNnHOAVbXcSXOn9S2aWUn6A==}
@@ -1105,6 +1122,9 @@ packages:
   bytes@3.1.2:
     resolution: {integrity: sha512-/Nf7TyzTx6S3yRJObOAV7956r8cr2+Oj8AC5dt8wSP3BQAoeX58NoHyCU8P8zGkNXStjTSi6fzO6F0pBdcYbEg==}
     engines: {node: '>= 0.8'}
+
+  cache-manager@6.3.2:
+    resolution: {integrity: sha512-VmLouPUrvpm9dfwYB6OE7YVXDZ7BCfbt7hq10EHiBYaW9K9ZthK1bbjDQAtXGDK7d9u8t4G/7dMWSJOwN33msg==}
 
   call-bind@1.0.7:
     resolution: {integrity: sha512-GHTSNSYICQ7scH7sZ+M2rFopRoLh8t2bLSW6BbgrtLsahOIB5iyAVJf9GjWK3cYTDaMj4XdBpM1cA6pIS0Kv2w==}
@@ -2096,6 +2116,9 @@ packages:
 
   keyv@4.5.4:
     resolution: {integrity: sha512-oxVHkHR/EJf2CNXnWxRLW6mg7JyCCUcG0DtEGmL2ctUo1PNTin1PUil+r/+4r5MpVgC/fn1kjsx7mjSujKqIpw==}
+
+  keyv@5.2.3:
+    resolution: {integrity: sha512-AGKecUfzrowabUv0bH1RIR5Vf7w+l4S3xtQAypKaUpTdIR1EbrAcTxHCrpo9Q+IWeUlFE2palRtgIQcgm+PQJw==}
 
   kleur@3.0.3:
     resolution: {integrity: sha512-eTIzlVOSUR+JxdDFepEYcBMtZ9Qqdef+rnzWdRZuMbOywu5tO2w2N7rqjoANZ5k9vywhL6Br1VRjUIgTQx4E8w==}
@@ -3713,6 +3736,10 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.0
 
+  '@keyv/serialize@1.0.2':
+    dependencies:
+      buffer: 6.0.3
+
   '@ljharb/through@2.3.13':
     dependencies:
       call-bind: 1.0.7
@@ -3733,6 +3760,13 @@ snapshots:
     transitivePeerDependencies:
       - encoding
       - supports-color
+
+  '@nestjs/cache-manager@2.3.0(@nestjs/common@10.4.8(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)(rxjs@7.8.1))(@nestjs/core@10.4.8)(cache-manager@6.3.2)(rxjs@7.8.1)':
+    dependencies:
+      '@nestjs/common': 10.4.8(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)(rxjs@7.8.1)
+      '@nestjs/core': 10.4.8(@nestjs/common@10.4.8(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)(rxjs@7.8.1))(@nestjs/platform-express@10.4.8)(reflect-metadata@0.2.2)(rxjs@7.8.1)
+      cache-manager: 6.3.2
+      rxjs: 7.8.1
 
   '@nestjs/cli@10.4.7':
     dependencies:
@@ -4474,6 +4508,10 @@ snapshots:
       streamsearch: 1.1.0
 
   bytes@3.1.2: {}
+
+  cache-manager@6.3.2:
+    dependencies:
+      keyv: 5.2.3
 
   call-bind@1.0.7:
     dependencies:
@@ -5710,6 +5748,10 @@ snapshots:
   keyv@4.5.4:
     dependencies:
       json-buffer: 3.0.1
+
+  keyv@5.2.3:
+    dependencies:
+      '@keyv/serialize': 1.0.2
 
   kleur@3.0.3: {}
 
