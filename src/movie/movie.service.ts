@@ -33,7 +33,7 @@ export class MovieService {
         private readonly commonService: CommonService
     ) {}
 
-    async findAll(getMoviesDto: GetMoviesDto) {
+    async findAll(getMoviesDto: GetMoviesDto, userId?: number) {
         const { title } = getMoviesDto;
         const qb = await this.movieRepository
             .createQueryBuilder('movie')
@@ -47,7 +47,33 @@ export class MovieService {
         // this.commonService.applyPagePaginationParamsToQb(qb, getMoviesDto);
         const { nextCursor } = await this.commonService.applyCursorPaginationParamsToQb(qb, getMoviesDto);
 
-        const [data, count] = await qb.getManyAndCount();
+        let [data, count] = await qb.getManyAndCount();
+
+        // userId 가 있는 경우 좋아요 데이터 맵핑
+        // 이 부분은 함수로 분리하는게 좋을 듯
+        if (userId) {
+            const movieIds = data.map(m => m.id);
+            const likeRecords = await this.movieUserLikeRepository
+                .createQueryBuilder('mul')
+                .leftJoinAndSelect('mul.movie', 'movie')
+                .leftJoinAndSelect('mul.user', 'user')
+                .where('movie.id in(:...movieIds)', { movieIds })
+                .andWhere('user.id = :userId', { userId })
+                .getMany();
+
+            const likeRecordsMap = likeRecords.reduce(
+                (acc, next) => ({
+                    ...acc,
+                    [next.movie.id]: next.isLike
+                }),
+                {}
+            );
+
+            data = data.map(x => ({
+                ...x,
+                likeStatus: x.id in likeRecordsMap ? likeRecordsMap[x.id] : null
+            }));
+        }
 
         return {
             data,
