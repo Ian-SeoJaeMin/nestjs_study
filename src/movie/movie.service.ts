@@ -53,13 +53,16 @@ export class MovieService {
         // 이 부분은 함수로 분리하는게 좋을 듯
         if (userId) {
             const movieIds = data.map(m => m.id);
-            const likeRecords = await this.movieUserLikeRepository
-                .createQueryBuilder('mul')
-                .leftJoinAndSelect('mul.movie', 'movie')
-                .leftJoinAndSelect('mul.user', 'user')
-                .where('movie.id in(:...movieIds)', { movieIds })
-                .andWhere('user.id = :userId', { userId })
-                .getMany();
+            const likeRecords =
+                movieIds.length < 1
+                    ? []
+                    : await this.movieUserLikeRepository
+                          .createQueryBuilder('mul')
+                          .leftJoinAndSelect('mul.movie', 'movie')
+                          .leftJoinAndSelect('mul.user', 'user')
+                          .where('movie.id in(:...movieIds)', { movieIds })
+                          .andWhere('user.id = :userId', { userId })
+                          .getMany();
 
             const likeRecordsMap = likeRecords.reduce(
                 (acc, next) => ({
