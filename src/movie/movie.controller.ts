@@ -23,6 +23,7 @@ import { UserId } from 'src/user/decorator/user-id.decorator';
 import { QueryRunner } from 'src/common/decorator/query-runner.decorator';
 import { QueryRunner as qr } from 'typeorm';
 import { CacheKey, CacheTTL, CacheInterceptor as CI } from '@nestjs/cache-manager';
+import { Throttle } from 'src/common/decorator/throttle.decorator';
 
 @Controller('movie')
 @UseInterceptors(ClassSerializerInterceptor) // class-transformer 를 moviceController에 적용
@@ -31,6 +32,10 @@ export class MovieController {
 
     @Get()
     @Public()
+    @Throttle({
+        count: 5,
+        unit: 'minute'
+    })
     getMovies(@Query() getMoviesDto: GetMoviesDto, @UserId() userId?: number) {
         return this.movieService.findAll(getMoviesDto, userId);
     }
