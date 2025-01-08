@@ -16,26 +16,29 @@ export class BearerTokenMiddleware implements NestMiddleware {
     ) {}
 
     async use(req: Request, res: Response, next: NextFunction) {
+        const authHeader = req.header('authorization');
+
+        if (!authHeader) {
+            return next();
+        }
+
+        const token = this.validateBearerToken(authHeader);
+        const blockedToken = await this.cacheManager.get(`BLOCK_TOKEN_${token}`);
+        if (blockedToken) throw new UnauthorizedException('차단된 토큰입니다.');
+
+        const tokenKey = `TOKEN_${token}`;
+
+        const cachedPayload = await this.cacheManager.get(tokenKey);
+
+        if (cachedPayload) {
+            req.user = cachedPayload;
+            return next();
+        }
+        const decodedPayload = await this.jwtService.decode(token);
+
+        this.validateTokenType(decodedPayload.type);
+
         try {
-            const authHeader = req.header('authorization');
-
-            if (!authHeader) {
-                return next();
-            }
-
-            const token = this.validateBearerToken(authHeader);
-            const tokenKey = `TOKEN_${token}`;
-
-            const cachedPayload = await this.cacheManager.get(tokenKey);
-
-            if (cachedPayload) {
-                req.user = cachedPayload;
-                return next();
-            }
-            const decodedPayload = await this.jwtService.decode(token);
-
-            this.validateTokenType(decodedPayload.type);
-
             const tokenSecretKey = this.getTokenSecretKey(decodedPayload.type);
 
             const payload = await this.verifyToken(token, tokenSecretKey);

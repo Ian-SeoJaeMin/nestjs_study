@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
@@ -6,13 +6,15 @@ import { ConfigService } from '@nestjs/config';
 import { Role, User } from 'src/user/entities/user.entity';
 import { JwtService } from '@nestjs/jwt';
 import { envVariableKeys } from 'src/common/const/env.const';
+import { Cache, CACHE_MANAGER } from '@nestjs/cache-manager';
 
 @Injectable()
 export class AuthService {
     constructor(
         @InjectRepository(User) private userRepository: Repository<User>,
         private readonly configService: ConfigService,
-        private readonly jwtService: JwtService
+        private readonly jwtService: JwtService,
+        @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
     ) {}
 
     // rawToken : Basic $token
@@ -122,5 +124,17 @@ export class AuthService {
             console.error(error);
             throw new BadRequestException('토큰이 만료되었습니다.');
         }
+    }
+
+    async tokenBlock(token: string) {
+        const payload = this.jwtService.decode(token);
+
+        const expireDate = +new Date(payload['exp'] * 1000); /// 초단위를 밀리세컨즈로 표현하기 위해 * 1000
+        const now = +Date.now(); // 현재시간
+
+        const differenceInSeconds = (expireDate - now) / 1000; // 초단 차이 : 밀리세컨즈니깐 1000 으로 나눠야 초로 계산
+
+        await this.cacheManager.set(`BLOCK_TOKEN_${token}`, payload, Math.max(differenceInSeconds, 1) * 1000); /// 초 차이 동안 ttl 설정, 밀리세컨즈로 변경을 위해 * 1000 ;  음수 대응
+        return true;
     }
 }
