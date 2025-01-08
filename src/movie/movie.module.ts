@@ -9,10 +9,14 @@ import { Genre } from 'src/genre/entities/genre.entity';
 import { CommonModule } from 'src/common/common.module';
 import { MovieUserLike } from './entity/movie-user-like.entity';
 import { User } from 'src/user/entities/user.entity';
+import { CacheModule } from '@nestjs/cache-manager';
 @Module({
     imports: [
         TypeOrmModule.forFeature([Movie, MovieDetail, Director, Genre, User, MovieUserLike]),
-        CommonModule
+        CommonModule,
+        CacheModule.register({
+            ttl: 3000 // ttl 전역설정
+        })
         // MulterModule.register({
         //     storage: diskStorage({
         //         destination: join(process.cwd(), 'public', 'movie'),

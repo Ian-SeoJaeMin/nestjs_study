@@ -34,6 +34,12 @@ export class MovieController {
         return this.movieService.findAll(getMoviesDto, userId);
     }
 
+    // recent 먼저 걸리도록 :id 엔드포인트 위에 설정
+    @Get('recent')
+    getMoviesRecent() {
+        return this.movieService.findRecent();
+    }
+
     @Get(':id')
     @Public()
     getMovie(@Param('id', ParseIntPipe) id: number) {
