@@ -5,12 +5,16 @@ import { readdir, unlink } from 'fs/promises';
 import { join, parse } from 'path';
 import { Movie } from 'src/movie/entity/movie.entity';
 import { Repository } from 'typeorm';
+import { DefaultLogger } from './logger/default.logger';
 
 @Injectable()
 export class TasksService {
-    private readonly logger = new Logger(TasksService.name);
+    // private readonly logger = new Logger(TasksService.name);
 
-    constructor(@InjectRepository(Movie) private readonly movieRepository: Repository<Movie>) {}
+    constructor(
+        @InjectRepository(Movie) private readonly movieRepository: Repository<Movie>,
+        private readonly logger: DefaultLogger
+    ) {}
 
     @Cron('* * * * * *')
     logEverSecond() {
