@@ -9,8 +9,8 @@ async function bootstrap() {
     });
 
     app.enableVersioning({
-        type: VersioningType.HEADER,
-        header: 'version'
+        type: VersioningType.MEDIA_TYPE,
+        key: 'v='
         // defaultVersion: '1' // ['1', '2'] : 리스트도 가능
     });
     // app.setGlobalPrefix('v1');

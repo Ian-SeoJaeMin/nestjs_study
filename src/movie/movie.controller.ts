@@ -10,7 +10,8 @@ import {
     ClassSerializerInterceptor,
     Query,
     ParseIntPipe,
-    Version
+    Version,
+    VERSION_NEUTRAL
 } from '@nestjs/common';
 import { MovieService } from './movie.service';
 import { CreateMovieDto } from './dto/create-movie.dto';
@@ -39,7 +40,7 @@ export class MovieControllerV2 {
 
 @Controller({
     path: 'movie',
-    version: '1'
+    version: VERSION_NEUTRAL
 })
 @UseInterceptors(ClassSerializerInterceptor) // class-transformer 를 moviceController에 적용
 export class MovieController {

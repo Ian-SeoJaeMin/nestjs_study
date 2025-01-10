@@ -27,7 +27,7 @@ import { User } from 'src/user/entities/user.entity';
         //     })
         // })
     ],
-    controllers: [MovieController, MovieControllerV2],
+    controllers: [MovieControllerV2, MovieController],
     providers: [MovieService]
 })
 export class MovieModule {}
