@@ -3,7 +3,9 @@ import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
-    const app = await NestFactory.create(AppModule);
+    const app = await NestFactory.create(AppModule, {
+        // logger: ['warn']
+    });
     app.useGlobalPipes(
         // class-validator 를 사용하기 위해 적용
         new ValidationPipe({

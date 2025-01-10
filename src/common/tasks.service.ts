@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
 import { InjectRepository } from '@nestjs/typeorm';
 import { readdir, unlink } from 'fs/promises';
@@ -8,11 +8,20 @@ import { Repository } from 'typeorm';
 
 @Injectable()
 export class TasksService {
+    private readonly logger = new Logger(TasksService.name);
+
     constructor(@InjectRepository(Movie) private readonly movieRepository: Repository<Movie>) {}
 
-    // @Cron('*/5 * * * * *')
+    @Cron('* * * * * *')
     logEverSecond() {
-        console.log('1초 마다 실행');
+        // console.log('1초 마다 실행');
+        // 아래의 로그 레벨 순으로 중요도?
+        this.logger.fatal('5초 마다 실행!');
+        this.logger.error('5초 마다 실행!');
+        this.logger.warn('5초 마다 실행!');
+        this.logger.log('5초 마다 실행!');
+        this.logger.debug('5초 마다 실행!');
+        this.logger.verbose('5초 마다 실행!');
     }
 
     // @Cron('* * * * * *')
