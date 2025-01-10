@@ -1,12 +1,19 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { ValidationPipe } from '@nestjs/common';
+import { ValidationPipe, VersioningType } from '@nestjs/common';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 
 async function bootstrap() {
     const app = await NestFactory.create(AppModule, {
         // logger: ['warn']
     });
+
+    app.enableVersioning({
+        type: VersioningType.URI
+        // defaultVersion: '1' // ['1', '2'] : 리스트도 가능
+    });
+    // app.setGlobalPrefix('v1');
+
     app.useLogger(app.get(WINSTON_MODULE_NEST_PROVIDER));
     app.useGlobalPipes(
         // class-validator 를 사용하기 위해 적용

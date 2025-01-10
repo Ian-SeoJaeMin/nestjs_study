@@ -127,7 +127,10 @@ export class AppModule implements NestModule {
     configure(consumer: MiddlewareConsumer) {
         consumer
             .apply(BearerTokenMiddleware)
-            .exclude({ path: 'auth/login', method: RequestMethod.POST }, { path: 'auth/register', method: RequestMethod.POST })
+            .exclude(
+                { path: 'auth/login', method: RequestMethod.POST }, //, version: '1' },
+                { path: 'auth/register', method: RequestMethod.POST } //, version: '1' }
+            )
             .forRoutes('*');
     }
 }

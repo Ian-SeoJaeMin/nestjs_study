@@ -18,7 +18,7 @@ export class TasksService {
         @Inject(WINSTON_MODULE_NEST_PROVIDER) private readonly logger: LoggerService
     ) {}
 
-    @Cron('* * * * * *')
+    // @Cron('* * * * * *')
     logEverSecond() {
         // console.log('1초 마다 실행');
         // 아래의 로그 레벨 순으로 중요도?
