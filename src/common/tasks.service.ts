@@ -1,11 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
+import { InjectRepository } from '@nestjs/typeorm';
 import { readdir, unlink } from 'fs/promises';
 import { join, parse } from 'path';
+import { Movie } from 'src/movie/entity/movie.entity';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class TasksService {
-    constructor() {}
+    constructor(@InjectRepository(Movie) private readonly movieRepository: Repository<Movie>) {}
 
     // @Cron('*/5 * * * * *')
     logEverSecond() {
@@ -46,5 +49,25 @@ export class TasksService {
 
         // promise.all 내부 함수를 모두 병렬로 수행. 완료되면 응답
         await Promise.all(deleteFileTargets.map(x => unlink(join(process.cwd(), 'public', 'temp', x))));
+    }
+
+    // @Cron('0 * * * * *')
+    async calculateMovieLikeCounts() {
+        // console.log('run');
+        await this.movieRepository.query(`
+            Update movie m
+            Set "likeCount" = (
+                Select Count(*) 
+                From "movie_user_like" mul
+                Where m.id = mul."movieId"
+                And mul."isLike" = true
+            ),
+            "dislikeCount" = (
+                Select Count(*) 
+                From "movie_user_like" mul
+                Where m.id = mul."movieId"
+                And mul."isLike" = false
+            )
+        `);
     }
 }
