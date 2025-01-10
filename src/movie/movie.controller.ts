@@ -51,7 +51,6 @@ export class MovieController {
         count: 5,
         unit: 'minute'
     })
-    @Version('5')
     getMovies(@Query() getMoviesDto: GetMoviesDto, @UserId() userId?: number) {
         return this.movieService.findAll(getMoviesDto, userId);
     }
