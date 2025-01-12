@@ -8,13 +8,6 @@ async function bootstrap() {
         // logger: ['warn']
     });
 
-    app.enableVersioning({
-        type: VersioningType.MEDIA_TYPE,
-        key: 'v='
-        // defaultVersion: '1' // ['1', '2'] : 리스트도 가능
-    });
-    // app.setGlobalPrefix('v1');
-
     app.useLogger(app.get(WINSTON_MODULE_NEST_PROVIDER));
     app.useGlobalPipes(
         // class-validator 를 사용하기 위해 적용
