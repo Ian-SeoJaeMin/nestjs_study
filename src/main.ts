@@ -2,11 +2,17 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe, VersioningType } from '@nestjs/common';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
     const app = await NestFactory.create(AppModule, {
         // logger: ['warn']
     });
+
+    // swagger 설정하기
+    const config = new DocumentBuilder().setTitle('Netflix Document').setDescription('NestJs Study Apis').setVersion('1.0').build();
+    const document = SwaggerModule.createDocument(app, config);
+    SwaggerModule.setup('doc', app, document);
 
     app.useLogger(app.get(WINSTON_MODULE_NEST_PROVIDER));
     app.useGlobalPipes(
