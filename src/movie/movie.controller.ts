@@ -26,8 +26,9 @@ import { QueryRunner } from 'src/common/decorator/query-runner.decorator';
 import { QueryRunner as qr } from 'typeorm';
 import { CacheKey, CacheTTL, CacheInterceptor as CI } from '@nestjs/cache-manager';
 import { Throttle } from 'src/common/decorator/throttle.decorator';
-import { ApiBearerAuth } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Movie')
 @ApiBearerAuth()
 @Controller('movie')
 @UseInterceptors(ClassSerializerInterceptor) // class-transformer 를 moviceController에 적용
@@ -39,6 +40,17 @@ export class MovieController {
     @Throttle({
         count: 5,
         unit: 'minute'
+    })
+    @ApiOperation({
+        description: '[Movie]를 Pagination 하는 API'
+    })
+    @ApiResponse({
+        status: 200,
+        description: '성공적으로 API Pagination을 실행 했을때'
+    })
+    @ApiResponse({
+        status: 400,
+        description: 'Pagination 데이터를 잘못 입력했을때'
     })
     getMovies(@Query() getMoviesDto: GetMoviesDto, @UserId() userId?: number) {
         return this.movieService.findAll(getMoviesDto, userId);

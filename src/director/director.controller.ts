@@ -13,8 +13,9 @@ import {
 import { DirectorService } from './director.service';
 import { CreateDirectorDto } from './dto/create-director.dto';
 import { UpdateDirectorDto } from './dto/update-director.dto';
-import { ApiBearerAuth } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Director')
 @ApiBearerAuth()
 @Controller('director')
 @UseInterceptors(ClassSerializerInterceptor)
