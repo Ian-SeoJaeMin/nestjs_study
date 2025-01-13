@@ -10,9 +10,19 @@ async function bootstrap() {
     });
 
     // swagger 설정하기
-    const config = new DocumentBuilder().setTitle('Netflix Document').setDescription('NestJs Study Apis').setVersion('1.0').build();
+    const config = new DocumentBuilder()
+        .setTitle('Netflix Document')
+        .setDescription('NestJs Study Apis')
+        .setVersion('1.0')
+        .addBasicAuth()
+        .addBearerAuth()
+        .build();
     const document = SwaggerModule.createDocument(app, config);
-    SwaggerModule.setup('doc', app, document);
+    SwaggerModule.setup('doc', app, document, {
+        swaggerOptions: {
+            persistAuthorization: true // 인증정보 유지
+        }
+    });
 
     app.useLogger(app.get(WINSTON_MODULE_NEST_PROVIDER));
     app.useGlobalPipes(

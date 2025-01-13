@@ -26,6 +26,9 @@ import { QueryRunner } from 'src/common/decorator/query-runner.decorator';
 import { QueryRunner as qr } from 'typeorm';
 import { CacheKey, CacheTTL, CacheInterceptor as CI } from '@nestjs/cache-manager';
 import { Throttle } from 'src/common/decorator/throttle.decorator';
+import { ApiBearerAuth } from '@nestjs/swagger';
+
+@ApiBearerAuth()
 @Controller('movie')
 @UseInterceptors(ClassSerializerInterceptor) // class-transformer 를 moviceController에 적용
 export class MovieController {
