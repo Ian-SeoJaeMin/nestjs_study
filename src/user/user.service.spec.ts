@@ -2,14 +2,21 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { UserService } from './user.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
-import { NotFoundException } from '@nestjs/common';
+import { BadRequestException, NotFoundException } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import * as bcrypt from 'bcrypt';
 
 const mockUserRepository = {
     findOne: jest.fn(),
     save: jest.fn(),
     find: jest.fn(),
     update: jest.fn(),
-    delete: jest.fn()
+    delete: jest.fn(),
+    existsBy: jest.fn()
+};
+
+const mockConfigService = {
+    get: jest.fn()
 };
 
 describe('UserService', () => {
@@ -22,6 +29,10 @@ describe('UserService', () => {
                 {
                     provide: getRepositoryToken(User),
                     useValue: mockUserRepository
+                },
+                {
+                    provide: ConfigService,
+                    useValue: mockConfigService
                 }
             ]
         }).compile();
@@ -31,6 +42,44 @@ describe('UserService', () => {
 
     it('should be defined', () => {
         expect(userService).toBeDefined();
+    });
+
+    describe('create', () => {
+        it('should create a new user and return it', async () => {
+            const createUserDto = { email: 'test@codefactory.ai', password: '123123' };
+            const hashRounds = 10;
+            const hashedPassword = 'hashshashashsahsh';
+            const result = {
+                id: 1,
+                email: createUserDto.email,
+                password: hashedPassword
+            };
+
+            jest.spyOn(mockUserRepository, 'existsBy').mockResolvedValue(null);
+            jest.spyOn(mockConfigService, 'get').mockReturnValue(hashRounds);
+            jest.spyOn(bcrypt, 'hash').mockImplementation((password, hashRounds) => hashedPassword);
+            jest.spyOn(mockUserRepository, 'findOne').mockResolvedValue(result);
+
+            const createdUser = await userService.create(createUserDto);
+
+            expect(createdUser).toEqual(result);
+            expect(mockUserRepository.existsBy).toHaveBeenCalledWith({ email: createUserDto.email });
+            expect(mockUserRepository.findOne).toHaveBeenCalledWith({ where: { email: createUserDto.email } });
+            expect(mockConfigService.get).toHaveBeenCalledWith(expect.anything());
+            expect(bcrypt.hash).toHaveBeenCalledWith(createUserDto.password, hashRounds);
+            expect(mockUserRepository.save).toHaveBeenCalledWith({ email: createUserDto.email, password: hashedPassword });
+        });
+
+        it('should throw a BadRequestException if email already exist', async () => {
+            const createUserDto = { email: 'test@codefactory.ai', password: '123123' };
+            jest.spyOn(mockUserRepository, 'existsBy').mockResolvedValue({
+                id: 1,
+                email: createUserDto.email
+            });
+
+            expect(userService.create(createUserDto)).rejects.toThrow(BadRequestException);
+            expect(mockUserRepository.existsBy).toHaveBeenCalledWith({ email: createUserDto.email });
+        });
     });
 
     describe('findAll', () => {

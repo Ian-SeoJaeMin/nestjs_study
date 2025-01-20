@@ -7,6 +7,7 @@ import { Role, User } from 'src/user/entities/user.entity';
 import { JwtService } from '@nestjs/jwt';
 import { envVariableKeys } from 'src/common/const/env.const';
 import { Cache, CACHE_MANAGER } from '@nestjs/cache-manager';
+import { UserService } from 'src/user/user.service';
 
 @Injectable()
 export class AuthService {
@@ -14,25 +15,15 @@ export class AuthService {
         @InjectRepository(User) private userRepository: Repository<User>,
         private readonly configService: ConfigService,
         private readonly jwtService: JwtService,
-        @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
+        @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
+        private readonly userService: UserService
     ) {}
 
     // rawToken : Basic $token
     async register(rawToken: string) {
         const { email, password } = this.parseBasicToken(rawToken);
 
-        if (await this.userRepository.existsBy({ email })) throw new BadRequestException('이미 가입한 이메일 주소입니다.');
-
-        const hash = await bcrypt.hash(password, parseInt(this.configService.get(envVariableKeys.hashRounds)));
-
-        await this.userRepository.save({
-            email,
-            password: hash
-        });
-
-        return this.userRepository.findOne({
-            where: { email }
-        });
+        return this.userService.create({ email, password });
     }
 
     async login(rawToken: string) {
