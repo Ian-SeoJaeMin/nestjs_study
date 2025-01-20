@@ -47,12 +47,20 @@ export class UserService {
     }
 
     async update(id: number, updateUserDto: UpdateUserDto) {
+        const { password } = updateUserDto;
         const user = await this.userRepository.findOne({
             where: { id }
         });
         if (!user) throw new NotFoundException('사용자를 찾을 수 없습니다.');
 
-        await this.userRepository.update({ id }, updateUserDto);
+        const hash = await bcrypt.hash(password, this.configService.get<number>(envVariableKeys.hashRounds));
+        await this.userRepository.update(
+            { id },
+            {
+                ...updateUserDto,
+                password: hash
+            }
+        );
 
         return this.userRepository.findOne({ where: { id } });
     }
