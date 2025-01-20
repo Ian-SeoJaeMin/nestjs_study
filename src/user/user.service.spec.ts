@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { UserService } from './user.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
+import { NotFoundException } from '@nestjs/common';
 
 const mockUserRepository = {
     findOne: jest.fn(),
@@ -51,6 +52,32 @@ describe('UserService', () => {
 
             expect(result).toEqual(users);
             expect(mockUserRepository.find).toHaveBeenCalled();
+        });
+    });
+
+    describe('findOne', () => {
+        it('should return a user by id', async () => {
+            const user = {
+                id: 1,
+                email: 'test@codefactory.ai'
+            };
+
+            // mockUserRepository.findOne.mockResolvedValue(user); // 아래와 같은 코드
+            jest.spyOn(mockUserRepository, 'findOne').mockResolvedValue(user);
+
+            const result = await userService.findOne(1);
+
+            expect(result).toEqual(user);
+            expect(mockUserRepository.findOne).toHaveBeenCalledWith({
+                where: { id: 1 }
+            });
+        });
+
+        it('should throw a NotFoundExpection if user is not found', async () => {
+            jest.spyOn(mockUserRepository, 'findOne').mockResolvedValue(null);
+
+            expect(userService.findOne(999)).rejects.toThrow(NotFoundException);
+            expect(mockUserRepository.findOne).toHaveBeenCalledWith({ where: { id: 999 } });
         });
     });
 });
