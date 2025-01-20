@@ -80,4 +80,27 @@ describe('UserService', () => {
             expect(mockUserRepository.findOne).toHaveBeenCalledWith({ where: { id: 999 } });
         });
     });
+
+    describe('remove', () => {
+        it('should remove user by id', async () => {
+            const user = {
+                id: 1,
+                email: 'test@codefactory.ai'
+            };
+            jest.spyOn(mockUserRepository, 'findOne').mockResolvedValue(user);
+            // jest.spyOn(mockUserRepository, 'delete').mockResolvedValue(1);
+
+            const result = await userService.remove(1);
+            expect(result).toEqual(1);
+
+            expect(mockUserRepository.findOne).toHaveBeenCalledWith({ where: { id: 1 } });
+            expect(mockUserRepository.delete).toHaveBeenCalledWith({ id: 1 });
+        });
+
+        it('should throw a NotFoundException if user to delete is not found', () => {
+            jest.spyOn(mockUserRepository, 'findOne').mockResolvedValue(null);
+            expect(userService.remove(999)).rejects.toThrow(NotFoundException);
+            expect(mockUserRepository.findOne).toHaveBeenCalledWith({ where: { id: 999 } });
+        });
+    });
 });
