@@ -18,7 +18,7 @@ export class AuthController {
     @ApiBasicAuth()
     @Post('register')
     registerUser(@Authorization() token: string) {
-        this.authService.register(token);
+        return this.authService.register(token);
     }
 
     @Public()
