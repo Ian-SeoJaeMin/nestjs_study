@@ -142,7 +142,7 @@ describe('AuthService', () => {
             expect(authService.parseBearerToken(rawToken, false)).rejects.toThrow(BadRequestException);
         });
 
-        it('should throw a BadRequestException if payload.type is not refresh but isRefreshToken parameter is true', () => {
+        it('should throw a UnauthorizedException if payload.type is not refresh but isRefreshToken parameter is true', () => {
             const rawToken = 'Bearer a';
 
             jest.spyOn(jwtService, 'verifyAsync').mockResolvedValue({
@@ -219,14 +219,15 @@ describe('AuthService', () => {
     });
 
     describe('issueToken', () => {
-        it('should return jwt token', async () => {
-            const user = { id: 1, role: Role.user };
-            const token = 'mock.token';
+        const user = { id: 1, role: Role.user };
+        const token = 'mock.token';
 
+        beforeEach(() => {
             jest.spyOn(configService, 'get').mockReturnValue('mock.secretKey');
             jest.spyOn(jwtService, 'signAsync').mockResolvedValue(token);
+        });
 
-            // access Token
+        it('should return jwt access token', async () => {
             const accessTokenResult = await authService.issueToken(user, false);
             expect(jwtService.signAsync).toHaveBeenCalledWith(
                 {
@@ -239,8 +240,10 @@ describe('AuthService', () => {
                     expiresIn: 300
                 }
             );
+            expect(accessTokenResult).toEqual(token);
+        });
 
-            // refresh Token
+        it('should return jwt refresh token', async () => {
             const refreshTokenResult = await authService.issueToken(user, true);
             expect(jwtService.signAsync).toHaveBeenCalledWith(
                 {
@@ -253,6 +256,7 @@ describe('AuthService', () => {
                     expiresIn: '24h'
                 }
             );
+            expect(refreshTokenResult).toEqual(token);
         });
     });
 
