@@ -22,6 +22,8 @@
     "test:user": "jest --testPathPattern=src/user --coverage --collectCoverageFrom=src/user/**",
     "test:user:watch": "jest --testPathPattern=src/user --coverage --collectCoverageFrom=src/user/** --watch",
     "test:auth:watch": "jest --testPathPattern=src/auth --coverage --collectCoverageFrom=src/auth/** --watch",
+    "test:director": "jest --testPathPattern=src/director --coverage --collectCoverageFrom=src/director/**",
+    "test:director:watch": "jest --testPathPattern=src/director --coverage --collectCoverageFrom=src/director/** --watch",
     "test:movie:watch": "jest --testPathPattern=src/movie --coverage --collectCoverageFrom=src/movie/** --watch"
   },
   "dependencies": {
@@ -105,6 +107,7 @@
       "entity.ts",
       "guard.ts",
       "middleware.ts",
+      "strategy.ts",
       "decorator.ts",
       "pipe.ts",
       "common/*"
