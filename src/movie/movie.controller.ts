@@ -82,13 +82,13 @@ export class MovieController {
 
     @Patch(':id')
     @RBAC(Role.admin)
-    patchMovie(@Param('id', ParseIntPipe) id: string, @Body() movieData: UpdateMovieDto) {
+    patchMovie(@Param('id', ParseIntPipe) id: number, @Body() movieData: UpdateMovieDto) {
         return this.movieService.update(+id, movieData);
     }
 
     @Delete(':id')
     @RBAC(Role.admin)
-    deleteMovie(@Param('id', ParseIntPipe) id: string) {
+    deleteMovie(@Param('id', ParseIntPipe) id: number) {
         return this.movieService.remove(+id);
     }
 

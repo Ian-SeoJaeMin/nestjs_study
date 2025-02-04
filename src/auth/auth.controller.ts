@@ -43,6 +43,7 @@ export class AuthController {
     }
 
     // # Passport 연습
+    /*
     @UseGuards(LocalAuthGuard)
     @Post('login/passport')
     async loginUserPassport(@Request() req) {
@@ -58,4 +59,5 @@ export class AuthController {
     async private(@Request() req) {
         return req.user;
     }
+    */
 }
