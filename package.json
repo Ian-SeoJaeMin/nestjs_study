@@ -16,11 +16,13 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
+    "test:cov:watch": "jest --watchAll --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "test:user": "jest --testPathPattern=src/user --coverage --collectCoverageFrom=src/user/**",
     "test:user:watch": "jest --testPathPattern=src/user --coverage --collectCoverageFrom=src/user/** --watch",
-    "test:auth:watch": "jest --testPathPattern=src/auth --coverage --collectCoverageFrom=src/auth/** --watch"
+    "test:auth:watch": "jest --testPathPattern=src/auth --coverage --collectCoverageFrom=src/auth/** --watch",
+    "test:movie:watch": "jest --testPathPattern=src/movie --coverage --collectCoverageFrom=src/movie/** --watch"
   },
   "dependencies": {
     "@nestjs/cache-manager": "2.2.2",
@@ -54,6 +56,8 @@
     "winston": "^3.17.0"
   },
   "devDependencies": {
+    "@automock/adapters.nestjs": "^2.1.0",
+    "@automock/jest": "^2.1.0",
     "@nestjs/cli": "^10.0.0",
     "@nestjs/schematics": "^10.0.0",
     "@nestjs/testing": "^10.0.0",
@@ -98,7 +102,12 @@
     "coveragePathIgnorePatterns": [
       "module.ts",
       "dto.ts",
-      "entity.ts"
+      "entity.ts",
+      "guard.ts",
+      "middleware.ts",
+      "decorator.ts",
+      "pipe.ts",
+      "common/*"
     ],
     "coverageDirectory": "./coverage",
     "testEnvironment": "node",
